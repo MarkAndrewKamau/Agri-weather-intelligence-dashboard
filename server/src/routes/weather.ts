@@ -4,6 +4,7 @@ import { cacheKey, getCached, getStale, setCached } from "../cache.js";
 import { upstreamGet, type UpstreamResult } from "../weatherClient.js";
 import { getRateLimit, shouldDegradeAi } from "../rateState.js";
 import { sendProxied } from "../respond.js";
+import { asyncHandler } from "../asyncHandler.js";
 import type { WeatherResponse } from "../../../shared/types.js";
 
 export const weatherRouter = Router();
@@ -78,10 +79,10 @@ function forecastHandler(upstreamPath: string, opts: { allowDays: boolean; allow
   };
 }
 
-weatherRouter.get("/weather", forecastHandler("/v1/weather", { allowDays: true, allowLang: true }));
-weatherRouter.get("/current", forecastHandler("/v1/current", { allowDays: false, allowLang: true }));
-weatherRouter.get("/daily", forecastHandler("/v1/daily", { allowDays: true, allowLang: false }));
-weatherRouter.get("/hourly", forecastHandler("/v1/hourly", { allowDays: true, allowLang: false }));
+weatherRouter.get("/weather", asyncHandler(forecastHandler("/v1/weather", { allowDays: true, allowLang: true })));
+weatherRouter.get("/current", asyncHandler(forecastHandler("/v1/current", { allowDays: false, allowLang: true })));
+weatherRouter.get("/daily", asyncHandler(forecastHandler("/v1/daily", { allowDays: true, allowLang: false })));
+weatherRouter.get("/hourly", asyncHandler(forecastHandler("/v1/hourly", { allowDays: true, allowLang: false })));
 
 /**
  * AI insight (opt-in). Proxies `/v1/insights` — the real AI endpoint — only when
@@ -89,7 +90,7 @@ weatherRouter.get("/hourly", forecastHandler("/v1/hourly", { allowDays: true, al
  * load. Cached 5 min to avoid re-spending on repeat clicks. On free plan this
  * returns 403 with an upgrade message, which the UI renders gracefully.
  */
-weatherRouter.get("/insights", async (req, res) => {
+weatherRouter.get("/insights", asyncHandler(async (req, res) => {
   const { lat, lon, units = "metric", lang = "en", days } = req.query as Record<string, string>;
   if (!lat || !lon) {
     return res.status(400).json({ error: "lat and lon query params are required" });
@@ -113,13 +114,13 @@ weatherRouter.get("/insights", async (req, res) => {
   } catch {
     res.status(502).json({ error: "Upstream insights request failed" });
   }
-});
+}));
 
 /**
  * Geo auto-detection. Forwards the REAL client IP to upstream so we resolve the
  * user's location, not the Render datacenter's. Falls back to ip=auto.
  */
-weatherRouter.get("/geo", async (req, res) => {
+weatherRouter.get("/geo", asyncHandler(async (req, res) => {
   const ip = (req.query.ip as string) || clientIp(req) || "auto";
   const ai = parseBool(req.query.ai, false);
   const params: Record<string, string | boolean> = { ip, ai };
@@ -156,4 +157,4 @@ weatherRouter.get("/geo", async (req, res) => {
   } catch {
     res.status(502).json({ error: "Upstream geo lookup failed" });
   }
-});
+}));

@@ -5,6 +5,16 @@ import { weatherRouter } from "./routes/weather.js";
 import { usageRouter } from "./routes/usage.js";
 import { treesRouter } from "./routes/trees.js";
 
+// Last line of defence: a stray rejection/exception (e.g. from the flaky
+// upstream) must never crash the single free instance into a restart loop.
+// Log and keep serving — routes already convert handled errors into clean 5xx.
+process.on("unhandledRejection", (reason) => {
+  console.error("unhandledRejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("uncaughtException:", err);
+});
+
 const app = express();
 
 // Render terminates TLS at a proxy; trust it so req.ip / X-Forwarded-For reflect

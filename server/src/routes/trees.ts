@@ -5,6 +5,7 @@ import { cacheKey, getCached, setCached } from "../cache.js";
 import { upstreamGet, upstreamPostForm } from "../weatherClient.js";
 import { getRateLimit } from "../rateState.js";
 import { sendProxied } from "../respond.js";
+import { asyncHandler } from "../asyncHandler.js";
 import type { TreeAnalysisResponse, TreeHistoryResponse } from "../../../shared/types.js";
 
 export const treesRouter = Router();
@@ -23,7 +24,7 @@ const upload = multer({
  * FormData/Blob (Node 18+) and let fetch set the boundary. The GCS-hosted
  * overlay/original image URLs in the response are passed straight through.
  */
-treesRouter.post("/trees/analyze", upload.single("image"), async (req, res) => {
+treesRouter.post("/trees/analyze", upload.single("image"), asyncHandler(async (req, res) => {
   const file = req.file;
   if (!file) {
     return res.status(400).json({ error: "An 'image' file field is required (max 20MB)." });
@@ -42,9 +43,9 @@ treesRouter.post("/trees/analyze", upload.single("image"), async (req, res) => {
   } catch {
     res.status(502).json({ error: "Upstream tree analysis failed" });
   }
-});
+}));
 
-treesRouter.get("/trees/history", async (req, res) => {
+treesRouter.get("/trees/history", asyncHandler(async (req, res) => {
   const { limit, cursor } = req.query as Record<string, string>;
   const params: Record<string, string> = {};
   if (limit) params.limit = limit;
@@ -66,4 +67,4 @@ treesRouter.get("/trees/history", async (req, res) => {
   } catch {
     res.status(502).json({ error: "Upstream tree history failed" });
   }
-});
+}));

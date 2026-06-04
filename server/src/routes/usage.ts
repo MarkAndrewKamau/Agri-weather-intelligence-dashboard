@@ -4,6 +4,7 @@ import { cacheKey, getCached, setCached } from "../cache.js";
 import { upstreamGet } from "../weatherClient.js";
 import { getRateLimit, setAiRemaining } from "../rateState.js";
 import { sendProxied } from "../respond.js";
+import { asyncHandler } from "../asyncHandler.js";
 import type { UsageResponse, TreeQuota } from "../../../shared/types.js";
 
 export const usageRouter = Router();
@@ -12,7 +13,7 @@ export const usageRouter = Router();
  * Account usage. Doubles as the source of truth for the AI degradation tracker:
  * every fetch refreshes how many AI requests remain this period.
  */
-usageRouter.get("/usage", async (_req, res) => {
+usageRouter.get("/usage", asyncHandler(async (_req, res) => {
   const key = cacheKey("/v1/usage", {});
   const cached = getCached<UsageResponse>(key);
   if (cached) {
@@ -32,9 +33,9 @@ usageRouter.get("/usage", async (_req, res) => {
   } catch {
     res.status(502).json({ error: "Upstream usage lookup failed" });
   }
-});
+}));
 
-usageRouter.get("/trees/quota", async (_req, res) => {
+usageRouter.get("/trees/quota", asyncHandler(async (_req, res) => {
   const key = cacheKey("/v1/trees/quota", {});
   const cached = getCached<TreeQuota>(key);
   if (cached) {
@@ -51,4 +52,4 @@ usageRouter.get("/trees/quota", async (_req, res) => {
   } catch {
     res.status(502).json({ error: "Upstream tree quota lookup failed" });
   }
-});
+}));

@@ -28,8 +28,10 @@ async function readBody<T>(res: Response): Promise<T> {
   return { message: await res.text() } as unknown as T;
 }
 
-const TIMEOUT_MS = 12_000;
-const MAX_ATTEMPTS = 3; // 1 try + 2 retries
+// Fail fast: valid responses come back in <1s, so a long timeout only ties up
+// the (tiny, free) instance when upstream is hanging. Short timeout + 1 retry.
+const TIMEOUT_MS = 8_000;
+const MAX_ATTEMPTS = 2; // 1 try + 1 retry
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** fetch with an AbortController timeout so a hung upstream can't hang our proxy. */
