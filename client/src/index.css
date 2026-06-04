@@ -247,7 +247,6 @@ button.primary { background: var(--accent); color: #07150c; border-color: var(--
 
 .boundary { max-width: 480px; margin: 80px auto; text-align: center; }
 
-.foot { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 16px; border-top: 1px solid var(--line); }
 
 /* ---------- responsive (mobile-first target market) ---------- */
 @media (max-width: 860px) {
