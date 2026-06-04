@@ -5,6 +5,7 @@ node_modules/
 dist/
 client/dist/
 server/dist/
+*.tsbuildinfo
 
 # env / secrets — the API key must NEVER be committed
 .env
