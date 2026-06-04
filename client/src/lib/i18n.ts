@@ -40,8 +40,8 @@ const dict = {
   remaining: { en: "remaining", sw: "kimebaki" },
   treesTitle: { en: "Tree canopy analysis", sw: "Uchambuzi wa dari ya miti" },
   uploadHint: {
-    en: "Drag & drop an aerial/field image, or click to choose (max 20MB)",
-    sw: "Buruta na udondoshe picha ya angani/shamba, au bofya kuchagua (juu ya 20MB)",
+    en: "Drag & drop an aerial/field image, or click to choose (JPG/PNG/WebP, max 20MB)",
+    sw: "Buruta na udondoshe picha ya angani/shamba, au bofya kuchagua (JPG/PNG/WebP, juu ya 20MB)",
   },
   analyze: { en: "Analyze", sw: "Chambua" },
   analyzing: { en: "Analyzing…", sw: "Inachambua…" },
