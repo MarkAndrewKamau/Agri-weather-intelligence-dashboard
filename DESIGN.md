@@ -19,7 +19,7 @@ ever talks to our `/api/*`. The key lives in one server-side env var and is atta
 in exactly one place ([`weatherClient.ts`](server/src/weatherClient.ts)).
 
 **Why:** The API key is a bearer credential. Any architecture that calls WeatherAI
-from the browser leaks it in the network tab — an instant fail for a credentialed
+from the browser leaks it in the network tab and an instant fail for a credentialed
 product. The proxy also gives us a single choke point to add caching, rate-limit
 accounting, retries, and response shaping.
 
@@ -46,16 +46,16 @@ functions) is discussed in §7.
   `path + sorted query`. It does not need durability or cross-process sharing yet.
 
 **Tradeoffs / where it breaks:**
-- **Not shared across instances.** The moment we run >1 instance (horizontal scale),
+- **Not shared across instances.** The moment I run >1 instance (horizontal scale),
   each has its own cache → lower hit rate and N× the upstream calls for the same key.
 - **Lost on restart/redeploy.** A cold instance starts with an empty cache, so the
-  first request after a deploy pays full latency (and, while WeatherAI is flaky, has
-  no stale entry to fall back on — exactly the gap we hit during deploys).
+  first request after a deploy pays full latency (and, while WeatherAI can be flaky, has
+  no stale entry to fall back on has been exactly the gap I hit during deploys).
 - **No eviction policy beyond TTL.** Fine at this key-count; unbounded in theory.
   (Mitigated in practice because the keyspace is small and bounded by locations.)
 
 **What changes at scale:** Introduce **Redis (managed, e.g. Render Key Value / Upstash)**
-as a *shared* cache the instant we go multi-instance — so a cache fill by one instance
+as a *shared* cache the instant the application needs to go multi-instance, so a cache fill by one instance
 serves all of them, the hit rate stays high, and the cache survives deploys. Keep the
 in-memory `Map` as an **L1** in front of Redis (L2) to avoid a network hop on the
 hottest keys. Add an explicit eviction policy (LRU + max entries) and per-tier TTLs.
@@ -70,7 +70,7 @@ fast `5xx` responses but **not** on timeouts; on failure the route serves the
 ([`weatherClient.ts`](server/src/weatherClient.ts), [`cache.ts`](server/src/cache.ts)).
 
 **Why:** WeatherAI's weather endpoints intermittently 500 and hang. Without this, a
-single upstream hiccup becomes a user-facing error and — worse — long hung requests
+single upstream hiccup becomes a user-facing error and worse long hung requests
 tie up the tiny free instance and trip Render's health monitor into a restart loop
 (we observed and fixed exactly this). Retrying a *timeout* just doubles the wait, so
 we only retry the fast-failing `5xx` case.
@@ -78,13 +78,13 @@ we only retry the fast-failing `5xx` case.
 **Tradeoffs:**
 - **Stale data can be slightly old** (bounded by how long the upstream stays down).
   For weather/agriculture that's an acceptable, honest tradeoff vs. a blank screen.
-- **Fixed retry/backoff** is crude — under sustained upstream failure we still send
+- **Fixed retry/backoff** is crude since under sustained upstream failure we still send
   doomed requests (each costing latency and a slice of quota) instead of backing off
   globally.
 
 **What changes at scale:** Add a **circuit breaker** — after N consecutive upstream
 failures, open the circuit and serve stale/`503` immediately for a cooldown window
-instead of hammering a downed dependency (protects both us and them). Pair it with
+instead of hammering a downed dependency (protects both the application and them). Pair it with
 **jittered exponential backoff**, and emit metrics on upstream error rate so the
 breaker state is observable. Consider a small **background refresher** that keeps
 popular keys warm so users never hit a cold miss.
@@ -97,8 +97,8 @@ popular keys warm so users never hit a cold miss.
 them to the browser via CORS, and feed `/v1/usage` into an AI-remaining tracker
 ([`rateState.ts`](server/src/rateState.ts)); surface all of it in a live quota widget.
 
-**Why:** The product *is* a metered API — showing the operator their remaining budget
-is both a UX nicety and proof we understood the domain. The AI tracker lets the proxy
+**Why:** The product *is* a metered API, showing the operator their remaining budget
+is both a UX win and proof I understood the domain. The AI tracker lets the proxy
 auto-suppress `ai=true` when the budget is nearly gone.
 
 **Tradeoff:** The tracker is in-process and best-effort (same single-instance
@@ -122,8 +122,8 @@ request but returns no narrative on the free plan — so auto-running it would s
 drain quota for nothing. Opt-in is the quota-respecting choice and still demonstrates
 correct endpoint discovery + graceful plan-gating.
 
-**Tradeoff:** No AI text appears in the free-plan demo (by design). The alternative —
-generating summaries with a *second* AI provider (e.g. Claude) — was rejected as
+**Tradeoff:** No AI text appears in the free-plan demo (by design). The alternative was
+generating summaries with a *second* AI provider (Claude) and was rejected as
 scope creep and a second credential to manage.
 
 **What changes at scale:** On a paid plan, cache insights per location/day (they
@@ -138,7 +138,7 @@ change slowly) and pre-generate for popular regions off the request path.
 ([`trees.ts`](server/src/routes/trees.ts)). GCS-hosted result image URLs are passed
 through, never re-proxied.
 
-**Why:** It's the simplest correct way to forward multipart through a Node proxy — no
+**Why:** It's the simplest correct way to forward multipart through a Node proxy since there is no
 manual boundary parsing. Passing image URLs through avoids paying egress to proxy
 large binaries we don't need to touch.
 
@@ -194,5 +194,5 @@ enough to demonstrate everything.
 | Infra | 2× Render free | Cold starts, single instance | Multi-instance + LB + secrets mgr + observability |
 
 The through-line: every "we didn't build X" is a conscious match of complexity to
-constraints — and each row names the exact signal (multi-instance, paid plan,
+constraints and each row names the exact signal (multi-instance, paid plan,
 concurrency, sustained upstream failure) that would flip the decision.
