@@ -18,17 +18,12 @@ backend proxy that keeps the API key off the browser entirely.
 
 ## Screenshots
 
-| <img width="1920" height="1080" alt="weather-page-1" src="https://github.com/user-attachments/assets/c79281cd-308d-4b23-9bda-ea00935daf67" />
- | <img width="1920" height="1080" alt="Screenshot From 2026-06-04 19-45-55" src="https://github.com/user-attachments/assets/81180064-2ab6-4815-a354-c634c2f98462" />
- |
-| --- | --- |
-| ![Weather dashboard](docs/screenshots/weather-en.png) | ![Swahili dashboard](docs/screenshots/weather-sw.png) |
+ <img width="1920" height="1080" alt="weather-page-1" src="https://github.com/user-attachments/assets/c79281cd-308d-4b23-9bda-ea00935daf67" />
+  <img width="1920" height="1080" alt="Screenshot From 2026-06-04 19-45-55" src="https://github.com/user-attachments/assets/81180064-2ab6-4815-a354-c634c2f98462" />
+ <img width="1920" height="1080" alt="tree-page" src="https://github.com/user-attachments/assets/2f4d7ec0-bfd6-42ae-8a0a-97b8f430a470" />
 
-| <img width="1920" height="1080" alt="tree-page" src="https://github.com/user-attachments/assets/2f4d7ec0-bfd6-42ae-8a0a-97b8f430a470" />
- | Live quota widget |
-| --- | --- |
-|  | <img width="1920" height="1080" alt="Screenshot From 2026-06-04 19-06-40" src="https://github.com/user-attachments/assets/3d0af410-1f70-45d2-9034-35ea35f1b211" />
- |
+ <img width="1920" height="1080" alt="Screenshot From 2026-06-04 19-06-40" src="https://github.com/user-attachments/assets/3d0af410-1f70-45d2-9034-35ea35f1b211" />
+
 
 ## Architecture
 
