@@ -3,6 +3,11 @@ import type { Lang } from "../../../shared/types";
 import { t } from "../lib/i18n";
 
 const MAX_BYTES = 20 * 1024 * 1024;
+// WeatherAI's analyze endpoint rejects some formats (e.g. AVIF) with
+// "unsupported_type". Gate client-side so an unsupported file never burns one
+// of the 5 monthly tree analyses.
+const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPT_ATTR = ACCEPTED.join(",");
 
 /** Drag-and-drop image picker with a 20MB client-side guard + optional metadata. */
 export function TreeUpload({
@@ -24,7 +29,9 @@ export function TreeUpload({
 
   function accept(f: File | undefined) {
     if (!f) return;
-    if (!f.type.startsWith("image/")) return setErr("Please choose an image file.");
+    if (!ACCEPTED.includes(f.type)) {
+      return setErr("Unsupported format. Please use JPG, PNG, or WebP (AVIF/HEIC aren't accepted).");
+    }
     if (f.size > MAX_BYTES) return setErr("Image exceeds the 20MB limit.");
     setErr(null);
     setFile(f);
@@ -57,7 +64,7 @@ export function TreeUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept={ACCEPT_ATTR}
           hidden
           onChange={(e) => accept(e.target.files?.[0] ?? undefined)}
         />

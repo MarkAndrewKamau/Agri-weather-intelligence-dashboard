@@ -16,6 +16,16 @@ backend proxy that keeps the API key off the browser entirely.
 
 ---
 
+## Screenshots
+
+| Weather (English) | Weather (Swahili `lang=sw`) |
+| --- | --- |
+| ![Weather dashboard](docs/screenshots/weather-en.png) | ![Swahili dashboard](docs/screenshots/weather-sw.png) |
+
+| Tree canopy analysis | Live quota widget |
+| --- | --- |
+| ![Tree analysis](docs/screenshots/tree-analysis.png) | ![Quota widget](docs/screenshots/quota.png) |
+
 ## Architecture
 
 ```

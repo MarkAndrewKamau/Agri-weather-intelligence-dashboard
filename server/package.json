@@ -8,6 +8,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsup src/index.ts --format esm --clean --target node20",
     "start": "node dist/index.js",
+    "test": "node --import tsx --test src/cache.test.ts src/rateState.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
