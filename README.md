@@ -101,8 +101,6 @@ else hangs off.
   imported by both sides.
 - **No redundant endpoints.** `/v1/forecast` is just an alias of `/v1/weather` (same params,
   same shape), so we consume `/v1/weather` only rather than wiring both.
-- **No redundant endpoints.** `/v1/forecast` is just an alias of `/v1/weather` (same params,
-  same shape), so we consume `/v1/weather` only rather than wiring both.
 - **Deliberately out of scope:** **webhooks** (Pro-only, needs a live receiver — untestable
   pre-deploy) and **SMS** (Scale-only, needs compliance approval — a time sink). Pro/Scale-gated
   endpoints (`forecast14`, `insights`, `ip-lookup`) degrade gracefully on `403`. Depth over breadth.
