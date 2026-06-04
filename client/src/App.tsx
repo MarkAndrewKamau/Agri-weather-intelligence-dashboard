@@ -147,10 +147,6 @@ export default function App() {
           )}
         </section>
       </main>
-
-      <footer className="foot">
-        <span>Data via WeatherAI · key stays server-side · responses cached 5&nbsp;min</span>
-      </footer>
     </div>
   );
 }
