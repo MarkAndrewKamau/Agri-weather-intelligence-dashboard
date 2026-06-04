@@ -56,6 +56,10 @@ else hangs off.
 
 ## Design decisions
 
+> For the deeper rationale — why in-memory cache instead of Redis, the resilience
+> strategy, and what would change at scale — see **[DESIGN.md](DESIGN.md)**.
+
+
 - **Proxy pattern (key isolation).** All WeatherAI calls go through `server/`. The key lives
   only in `WEATHER_AI_KEY` and is attached in exactly one place
   ([`weatherClient.ts`](server/src/weatherClient.ts)).
