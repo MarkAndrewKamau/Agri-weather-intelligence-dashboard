@@ -7,8 +7,12 @@ It consumes all three meaningful API families — **weather/forecast**, **AI ins
 (with graceful degradation + Swahili), and **agroforestry tree analysis** — through a
 backend proxy that keeps the API key off the browser entirely.
 
-> **Live demo:** _<add your Render Static Site URL here after deploy>_
-> **API proxy:** _<add your Render Web Service URL here after deploy>_
+> **🌍 Live demo:** **https://agri-weather-intelligence-dashboard.onrender.com**
+> **🔌 API proxy:** https://agri-weather-server.onrender.com
+>
+> ⏳ _Hosted on Render's free tier, so the backend **sleeps after ~15 min of
+> inactivity** — the first request may take ~50s to cold-start, then it's fast.
+> If a panel errors on first load, hit **Retry** once._
 
 ---
 
