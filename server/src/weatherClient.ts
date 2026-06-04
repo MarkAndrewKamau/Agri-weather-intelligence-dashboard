@@ -29,9 +29,9 @@ async function readBody<T>(res: Response): Promise<T> {
 }
 
 // Fail fast: valid responses come back in <1s, so a long timeout only ties up
-// the (tiny, free) instance when upstream is hanging. Short timeout + 1 retry.
-const TIMEOUT_MS = 8_000;
-const MAX_ATTEMPTS = 2; // 1 try + 1 retry
+// the (tiny, free) instance when upstream is hanging.
+const TIMEOUT_MS = 7_000;
+const MAX_ATTEMPTS = 2; // 1 try + 1 retry — but only retry fast 5xx, not timeouts
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** fetch with an AbortController timeout so a hung upstream can't hang our proxy. */
@@ -78,8 +78,10 @@ export async function upstreamGet<T>(
         retryAfter: res.headers.get("retry-after"),
       };
     } catch (err) {
+      // A timeout/abort already burned the full window — retrying just doubles
+      // the user's wait, so fail fast and let the caller serve stale / 502.
       lastErr = err;
-      if (attempt < MAX_ATTEMPTS) await sleep(300 * attempt);
+      break;
     }
   }
   throw lastErr ?? new Error("upstream request failed");
