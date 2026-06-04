@@ -1,0 +1,41 @@
+# Render Blueprint — two services, as designed.
+#
+#   1. agri-weather-server  (Node web service)  — the proxy; holds WEATHER_AI_KEY
+#   2. agri-weather-client  (static site)       — the Vite dashboard; no secrets
+#
+# The two URLs reference each other (CORS allowlist <-> API base URL), which is a
+# chicken-and-egg on first deploy. WEATHER_AI_KEY, ALLOWED_ORIGIN, and
+# VITE_API_BASE_URL are marked `sync: false` — set them in the Render dashboard
+# once the service URLs exist (see README → Deployment). Render URLs are
+# predictable: https://<service-name>.onrender.com
+services:
+  - type: web
+    name: agri-weather-server
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: WEATHER_AI_KEY
+        sync: false # paste your wai_... key in the dashboard (never commit it)
+      - key: ALLOWED_ORIGIN
+        sync: false # set to the client URL, e.g. https://agri-weather-client.onrender.com
+      - key: AI_DEGRADE_THRESHOLD
+        value: "15"
+
+  - type: web
+    name: agri-weather-client
+    runtime: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false # set to the server URL, e.g. https://agri-weather-server.onrender.com
+    routes:
+      # SPA fallback so client-side state survives a refresh / deep link.
+      - type: rewrite
+        source: /*
+        destination: /index.html
